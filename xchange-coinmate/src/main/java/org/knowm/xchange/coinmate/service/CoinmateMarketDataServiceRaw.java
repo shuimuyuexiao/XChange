@@ -28,6 +28,7 @@ import org.knowm.xchange.Exchange;
 import org.knowm.xchange.coinmate.Coinmate;
 import org.knowm.xchange.coinmate.dto.marketdata.CoinmateOrderBook;
 import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTicker;
+import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTradingPairs;
 import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTransactions;
 import si.mazi.rescu.RestProxyFactory;
 
@@ -41,6 +42,14 @@ public class CoinmateMarketDataServiceRaw extends CoinmateBaseService {
     this.coinmate =
         RestProxyFactory.createProxy(
             Coinmate.class, exchange.getExchangeSpecification().getSslUri(), getClientConfig());
+  }
+
+  public CoinmateTradingPairs getTradingPairs() throws IOException {
+      CoinmateTradingPairs pairs = coinmate.getTradingPairs();
+
+      throwExceptionIfError(pairs);
+
+      return pairs;
   }
 
   public CoinmateTicker getCoinmateTicker(String currencyPair) throws IOException {

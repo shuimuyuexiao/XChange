@@ -31,6 +31,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.knowm.xchange.coinmate.dto.marketdata.CoinmateOrderBook;
 import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTicker;
+import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTradingPairs;
 import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTransactions;
 
 /** @author Martin Stachon */
@@ -55,4 +56,8 @@ public interface Coinmate {
       @QueryParam("minutesIntoHistory") int minutesIntoHistory,
       @QueryParam("currencyPair") String currencyPair)
       throws IOException;
+
+  @GET
+  @Path("tradingPairs")
+  CoinmateTradingPairs getTradingPairs() throws IOException;
 }

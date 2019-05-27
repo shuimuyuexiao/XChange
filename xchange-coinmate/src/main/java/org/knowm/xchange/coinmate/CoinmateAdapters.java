@@ -27,13 +27,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import org.knowm.xchange.coinmate.dto.account.CoinmateBalance;
 import org.knowm.xchange.coinmate.dto.account.CoinmateBalanceData;
-import org.knowm.xchange.coinmate.dto.marketdata.CoinmateOrderBook;
-import org.knowm.xchange.coinmate.dto.marketdata.CoinmateOrderBookEntry;
-import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTicker;
-import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTransactions;
-import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTransactionsEntry;
+import org.knowm.xchange.coinmate.dto.marketdata.*;
 import org.knowm.xchange.coinmate.dto.trade.CoinmateOpenOrders;
 import org.knowm.xchange.coinmate.dto.trade.CoinmateOpenOrdersEntry;
 import org.knowm.xchange.coinmate.dto.trade.CoinmateTransactionHistory;
@@ -48,6 +46,9 @@ import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.marketdata.Trade;
 import org.knowm.xchange.dto.marketdata.Trades;
+import org.knowm.xchange.dto.meta.CurrencyMetaData;
+import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
+import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.UserTrade;
 import org.knowm.xchange.dto.trade.UserTrades;
@@ -96,6 +97,34 @@ public class CoinmateAdapters {
       orders.add(order);
     }
     return orders;
+  }
+
+  public static ExchangeMetaData adaptToExchangeMetaData(
+        ExchangeMetaData exchangeMetaData, CoinmateTradingPairsData[] pairs){
+    Map<CurrencyPair, CurrencyPairMetaData> currencyPairs = exchangeMetaData.getCurrencyPairs();
+    Map<Currency, CurrencyMetaData> currencies = exchangeMetaData.getCurrencies();
+    for (CoinmateTradingPairsData cp : pairs){
+        CurrencyPair pair = new CurrencyPair(cp.getFirstCurrency(),cp.getSecondCurrency());
+
+        CurrencyPairMetaData staticMetaData = exchangeMetaData.getCurrencyPairs().get(pair);
+        CurrencyPairMetaData cpmd =
+                new CurrencyPairMetaData(
+                        null,
+                        cp.getMinAmount(),
+                        null,
+                        cp.getPriceDecimals(),
+                        staticMetaData != null ? staticMetaData.getFeeTiers() : null);
+        currencyPairs.put(pair, cpmd);
+
+        if (!currencies.containsKey(pair.base)) currencies.put(pair.base, null);
+        if (!currencies.containsKey(pair.counter)) currencies.put(pair.counter, null);
+    }
+    return new ExchangeMetaData(
+            currencyPairs,
+            currencies,
+            exchangeMetaData.getPublicRateLimits(),
+            exchangeMetaData.getPrivateRateLimits(),
+            true);
   }
 
   public static OrderBook adaptOrderBook(

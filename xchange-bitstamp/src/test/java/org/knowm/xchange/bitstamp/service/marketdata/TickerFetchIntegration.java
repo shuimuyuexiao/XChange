@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.bitstamp.BitstampExchange;
+import org.knowm.xchange.bitstamp.dto.marketdata.BitstampPair;
+import org.knowm.xchange.bitstamp.service.BitstampMarketDataService;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.service.marketdata.MarketDataService;
@@ -21,5 +23,14 @@ public class TickerFetchIntegration {
     Ticker ticker = marketDataService.getTicker(new CurrencyPair("BTC", "USD"));
     System.out.println(ticker.toString());
     assertThat(ticker).isNotNull();
+  }
+
+  @Test
+  public void getPairs() throws Exception{
+    Exchange exchange = ExchangeFactory.INSTANCE.createExchange(BitstampExchange.class.getName());
+    BitstampMarketDataService bitstampMarketDataService = (BitstampMarketDataService) exchange.getMarketDataService();
+    for (BitstampPair bp : bitstampMarketDataService.getPairs()) {
+      System.out.println(bp.toString());
+    }
   }
 }

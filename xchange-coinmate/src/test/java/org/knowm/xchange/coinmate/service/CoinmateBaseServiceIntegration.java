@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.coinmate.CoinmateExchange;
+import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTradingPairs;
+import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTradingPairsData;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
@@ -137,5 +139,16 @@ public class CoinmateBaseServiceIntegration {
     Trades trades = marketDataService.getTrades(new CurrencyPair(Currency.XRP, Currency.CZK));
     System.out.println(trades.getTrades().toString());
     assertThat(trades).isNotNull();
+  }
+
+  @Test
+  public void getTradingPairs() throws Exception{
+      Exchange exchange = ExchangeFactory.INSTANCE.createExchange(CoinmateExchange.class.getName());
+      CoinmateMarketDataService coinmateMarketDataService = (CoinmateMarketDataService) exchange.getMarketDataService();
+      CoinmateTradingPairs ctp = coinmateMarketDataService.getTradingPairs();
+      CoinmateTradingPairsData[] ctpds = ctp.getData();
+      for(CoinmateTradingPairsData ctpd : ctpds){
+          System.out.println(ctpd.toString());
+      }
   }
 }

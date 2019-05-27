@@ -6,6 +6,7 @@ import org.knowm.xchange.Exchange;
 import org.knowm.xchange.bitstamp.BitstampV2;
 import org.knowm.xchange.bitstamp.dto.BitstampException;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampOrderBook;
+import org.knowm.xchange.bitstamp.dto.marketdata.BitstampPair;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampTicker;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampTransaction;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -22,6 +23,14 @@ public class BitstampMarketDataServiceRaw extends BitstampBaseService {
     this.bitstampV2 =
         RestProxyFactory.createProxy(
             BitstampV2.class, exchange.getExchangeSpecification().getSslUri(), getClientConfig());
+  }
+
+  public BitstampPair[] getPairs() throws IOException {
+    try {
+      return bitstampV2.getPairs();
+    } catch (BitstampException e) {
+      throw handleError(e);
+    }
   }
 
   public BitstampTicker getBitstampTicker(CurrencyPair pair) throws IOException {

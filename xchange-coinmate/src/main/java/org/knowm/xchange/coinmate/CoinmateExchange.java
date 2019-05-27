@@ -26,11 +26,15 @@ package org.knowm.xchange.coinmate;
 import org.knowm.xchange.BaseExchange;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.coinmate.dto.marketdata.CoinmateTradingPairsData;
 import org.knowm.xchange.coinmate.service.CoinmateAccountService;
 import org.knowm.xchange.coinmate.service.CoinmateMarketDataService;
+import org.knowm.xchange.coinmate.service.CoinmateMarketDataServiceRaw;
 import org.knowm.xchange.coinmate.service.CoinmateTradeService;
 import org.knowm.xchange.utils.nonce.TimestampIncrementingNonceFactory;
 import si.mazi.rescu.SynchronizedValueFactory;
+
+import java.io.IOException;
 
 /** @author Martin Stachon */
 public class CoinmateExchange extends BaseExchange implements Exchange {
@@ -62,5 +66,12 @@ public class CoinmateExchange extends BaseExchange implements Exchange {
     exchangeSpecification.setExchangeDescription("Bitcoin trading made simple.");
 
     return exchangeSpecification;
+  }
+
+  @Override
+  public void remoteInit() throws IOException {
+      CoinmateTradingPairsData[] pairs = ((CoinmateMarketDataServiceRaw) marketDataService)
+              .getTradingPairs().getData();
+      exchangeMetaData = CoinmateAdapters.adaptToExchangeMetaData(exchangeMetaData,pairs);
   }
 }

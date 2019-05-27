@@ -10,6 +10,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.knowm.xchange.bitstamp.dto.BitstampException;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampOrderBook;
+import org.knowm.xchange.bitstamp.dto.marketdata.BitstampPair;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampTicker;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampTransaction;
 import org.knowm.xchange.bitstamp.service.BitstampMarketDataServiceRaw;
@@ -20,6 +21,11 @@ import org.knowm.xchange.utils.jackson.CurrencyPairDeserializer;
 @Path("api/v2")
 @Produces(MediaType.APPLICATION_JSON)
 public interface BitstampV2 {
+
+  @GET
+  @Path("trading-pairs-info")
+  BitstampPair[] getPairs()
+          throws IOException, BitstampException;
 
   @GET
   @Path("order_book/{pair}/")

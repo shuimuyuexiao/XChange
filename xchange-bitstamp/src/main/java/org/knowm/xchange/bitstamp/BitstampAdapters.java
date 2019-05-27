@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import org.knowm.xchange.bitstamp.dto.account.BitstampBalance;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampOrderBook;
+import org.knowm.xchange.bitstamp.dto.marketdata.BitstampPair;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampTicker;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampTransaction;
 import org.knowm.xchange.bitstamp.dto.trade.BitstampOrderStatus;
@@ -31,6 +32,9 @@ import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.marketdata.Trade;
 import org.knowm.xchange.dto.marketdata.Trades;
 import org.knowm.xchange.dto.marketdata.Trades.TradeSortType;
+import org.knowm.xchange.dto.meta.CurrencyMetaData;
+import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
+import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.UserTrade;
 import org.knowm.xchange.dto.trade.UserTrades;
@@ -70,6 +74,40 @@ public final class BitstampAdapters {
       balances.add(xchangeBalance);
     }
     return new AccountInfo(userName, bitstampBalance.getFee(), new Wallet(balances));
+  }
+
+  public static ExchangeMetaData adaptToExchangeMetaData(
+          ExchangeMetaData exchangeMetaData, BitstampPair[] pairs){
+      Map<CurrencyPair, CurrencyPairMetaData> currencyPairs = exchangeMetaData.getCurrencyPairs();
+      Map<Currency, CurrencyMetaData> currencies = exchangeMetaData.getCurrencies();
+      for (BitstampPair bp : pairs){
+          // minimum_order
+          String minimumOrder = bp.getMinimumOrder();
+          String[] stringArr = minimumOrder.split(" ");
+          BigDecimal amountStepSize = new BigDecimal(stringArr[0]);
+
+          CurrencyPair pair = new CurrencyPair(bp.getName());
+
+          CurrencyPairMetaData staticMetaData = exchangeMetaData.getCurrencyPairs().get(pair);
+          CurrencyPairMetaData cpmd =
+                  new CurrencyPairMetaData(
+                          null,
+                          null,
+                          null,
+                          bp.getCounterDecimals(),
+                          staticMetaData != null ? staticMetaData.getFeeTiers() : null,
+                          amountStepSize);
+          currencyPairs.put(pair, cpmd);
+
+          if (!currencies.containsKey(pair.base)) currencies.put(pair.base, null);
+          if (!currencies.containsKey(pair.counter)) currencies.put(pair.counter, null);
+      }
+      return new ExchangeMetaData(
+              currencyPairs,
+              currencies,
+              exchangeMetaData.getPublicRateLimits(),
+              exchangeMetaData.getPrivateRateLimits(),
+              true);
   }
 
   /**

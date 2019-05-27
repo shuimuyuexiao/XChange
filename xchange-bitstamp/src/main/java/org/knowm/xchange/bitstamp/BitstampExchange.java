@@ -3,11 +3,16 @@ package org.knowm.xchange.bitstamp;
 import org.knowm.xchange.BaseExchange;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.bitstamp.dto.marketdata.BitstampPair;
+import org.knowm.xchange.bitstamp.dto.marketdata.BitstampPair;
 import org.knowm.xchange.bitstamp.service.BitstampAccountService;
 import org.knowm.xchange.bitstamp.service.BitstampMarketDataService;
+import org.knowm.xchange.bitstamp.service.BitstampMarketDataServiceRaw;
 import org.knowm.xchange.bitstamp.service.BitstampTradeService;
 import org.knowm.xchange.utils.nonce.CurrentTimeNonceFactory;
 import si.mazi.rescu.SynchronizedValueFactory;
+
+import java.io.IOException;
 
 /** @author Matija Mazi */
 public class BitstampExchange extends BaseExchange implements Exchange {
@@ -40,5 +45,11 @@ public class BitstampExchange extends BaseExchange implements Exchange {
   public SynchronizedValueFactory<Long> getNonceFactory() {
 
     return nonceFactory;
+  }
+
+  @Override
+  public void remoteInit() throws IOException {
+      BitstampPair[] pairs =  ((BitstampMarketDataServiceRaw) marketDataService).getPairs();
+      exchangeMetaData = BitstampAdapters.adaptToExchangeMetaData(exchangeMetaData,pairs);
   }
 }
